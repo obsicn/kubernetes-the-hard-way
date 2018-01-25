@@ -22,7 +22,7 @@ metadata:
     kubernetes.io/cluster-service: "true"
     kubernetes.io/name: "KubeDNS"
 spec:
-  clusterIP: 10.32.0.10
+  clusterIP: 10.0.11.10
   ports:
     - name: dns
       port: 53

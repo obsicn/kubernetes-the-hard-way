@@ -27,11 +27,11 @@ When generating kubeconfig files for Kubelets the client certificate matching th
 Generate a kubeconfig file for each worker node:
 
 ```
-for instance in worker-0 worker-1 worker-2; do
+for instance in vm10-0-10-5.ksc.com vm10-0-10-6.ksc.com vm10-0-10-7.ksc.com; do
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.pem \
     --embed-certs=true \
-    --server=https://${KUBERNETES_PUBLIC_ADDRESS}:6443 \
+    --server=https://120.131.1.200:6443 \
     --kubeconfig=${instance}.kubeconfig
 
   kubectl config set-credentials system:node:${instance} \
@@ -60,6 +60,11 @@ worker-2.kubeconfig
 ### The kube-proxy Kubernetes Configuration File
 
 Generate a kubeconfig file for the `kube-proxy` service:
+
+配置SLB地址
+```
+KUBERNETES_PUBLIC_ADDRESS=120.131.1.200
+```
 
 ```
 kubectl config set-cluster kubernetes-the-hard-way \
@@ -93,8 +98,8 @@ kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
 Copy the appropriate `kubelet` and `kube-proxy` kubeconfig files to each worker instance:
 
 ```
-for instance in worker-0 worker-1 worker-2; do
-  gcloud compute scp ${instance}.kubeconfig kube-proxy.kubeconfig ${instance}:~/
+for instance in vm10-0-10-5.ksc.com vm10-0-10-6.ksc.com vm10-0-10-7.ksc.com; do
+  scp  ${instance}.kubeconfig kube-proxy.kubeconfig ubuntu@${instance}:~/
 done
 ```
 

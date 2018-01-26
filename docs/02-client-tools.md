@@ -24,7 +24,7 @@ chmod +x cfssl cfssljson
 sudo mv cfssl cfssljson /usr/local/bin/
 ```
 
-### Linux
+### Linux(**)
 
 ```
 wget -q --show-progress --https-only --timestamping \
@@ -69,7 +69,7 @@ The `kubectl` command line utility is used to interact with the Kubernetes API S
 ### OS X
 
 ```
-curl -o kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/darwin/amd64/kubectl
+curl -o kubectl https://storage.googleapis.com/kubernetes-release/release/v1.9.2/bin/darwin/amd64/kubectl
 ```
 
 ```
@@ -81,9 +81,27 @@ sudo mv kubectl /usr/local/bin/
 ```
 
 ### Linux
+```
+ubuntu@k8s-srv01:~$ wget https://storage.googleapis.com/kubernetes-release/release/v1.9.2/kubernetes-client-linux-amd64.tar.gz
+--2018-01-23 23:27:07--  https://storage.googleapis.com/kubernetes-release/release/v1.9.2/kubernetes-client-linux-amd64.tar.gz
+Resolving storage.googleapis.com (storage.googleapis.com)... 216.58.200.240, 2404:6800:4008:801::2010
+Connecting to storage.googleapis.com (storage.googleapis.com)|216.58.200.240|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 15628788 (15M) [application/x-tar]
+Saving to: ‘kubernetes-client-linux-amd64.tar.gz’
+
+kubernetes-client-linux-amd64.tar.gz         100%[============================================================================================>]  14.90M  1.37MB/s    in 6.7s    
+
+2018-01-23 23:27:15 (2.23 MB/s) - ‘kubernetes-client-linux-amd64.tar.gz’ saved [15628788/15628788]
+
+
+ubuntu@k8s-srv01:~$ kubectl version --client
+Client Version: version.Info{Major:"1", Minor:"9", GitVersion:"v1.9.2", GitCommit:"5fa2db2bd46ac79e5e00a4e6ed24191080aa463b", GitTreeState:"clean", BuildDate:"2018-01-18T10:09:24Z", GoVersion:"go1.9.2", Compiler:"gc", Platform:"linux/amd64"}
 
 ```
-wget https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl
+
+```
+wget https://storage.googleapis.com/kubernetes-release/release/v1.9.2/bin/linux/amd64/kubectl
 ```
 
 ```

@@ -35,9 +35,20 @@ EOF
 Copy the `encryption-config.yaml` encryption config file to each controller instance:
 
 ```
-for instance in controller-0 controller-1 controller-2; do
-  gcloud compute scp encryption-config.yaml ${instance}:~/
+for instance in 10.0.10.2 10.0.10.3 10.0.10.4; do
+  scp encryption-config.yaml ubuntu@${instance}:~/
 done
 ```
+master节点上的文件：
+```
+ubuntu@vm10-0-10-2:~$ ls 
+ca-key.pem  ca.pem  encryption-config.yaml  kubernetes-key.pem  kubernetes.pem
+```
 
+Node上的文件
+
+```
+ubuntu@vm10-0-10-5:~$ ls 
+10.0.10.5-key.pem  10.0.10.5.kubeconfig  10.0.10.5.pem  ca.pem  kube-proxy.kubeconfig
+```
 Next: [Bootstrapping the etcd Cluster](07-bootstrapping-etcd.md)

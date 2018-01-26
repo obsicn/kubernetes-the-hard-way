@@ -4,6 +4,20 @@ Kubernetes components are stateless and store cluster state in [etcd](https://gi
 
 ## Prerequisites
 
+在管理服务器上下载etcd安装包，然后拷贝到master节点
+```
+wget -q --show-progress --https-only --timestamping \
+  "https://github.com/coreos/etcd/releases/download/v3.2.8/etcd-v3.2.8-linux-amd64.tar.gz"
+```
+
+```
+for instance in 10.0.10.2 10.0.10.3 10.0.10.4; do
+  scp etcd-v3.2.8-linux-amd64.tar.gz ubuntu@${instance}:~/
+done
+```
+
+
+
 The commands in this lab must be run on each controller instance: `controller-0`, `controller-1`, and `controller-2`. Login to each controller instance using the `gcloud` command. Example:
 
 ```
@@ -16,10 +30,7 @@ gcloud compute ssh controller-0
 
 Download the official etcd release binaries from the [coreos/etcd](https://github.com/coreos/etcd) GitHub project:
 
-```
-wget -q --show-progress --https-only --timestamping \
-  "https://github.com/coreos/etcd/releases/download/v3.2.8/etcd-v3.2.8-linux-amd64.tar.gz"
-```
+
 
 Extract and install the `etcd` server and the `etcdctl` command line utility:
 
@@ -57,6 +68,11 @@ ETCD_NAME=$(hostname -s)
 Create the `etcd.service` systemd unit file:
 
 ```
+for INTERNAL_IP in $(hostname -I); do
+  echo $INTERNAL_IP
+  break
+done
+
 cat > etcd.service <<EOF
 [Unit]
 Description=etcd
@@ -78,7 +94,7 @@ ExecStart=/usr/local/bin/etcd \\
   --listen-client-urls https://${INTERNAL_IP}:2379,http://127.0.0.1:2379 \\
   --advertise-client-urls https://${INTERNAL_IP}:2379 \\
   --initial-cluster-token etcd-cluster-0 \\
-  --initial-cluster controller-0=https://10.240.0.10:2380,controller-1=https://10.240.0.11:2380,controller-2=https://10.240.0.12:2380 \\
+  --initial-cluster vm10-0-10-2=https://10.0.10.2:2380,vm10-0-10-3=https://10.0.10.3:2380,vm10-0-10-4=https://10.0.10.4:2380 \\
   --initial-cluster-state new \\
   --data-dir=/var/lib/etcd
 Restart=on-failure

@@ -11,14 +11,20 @@ Each kubeconfig requires a Kubernetes API Server to connect to. To support high 
 Retrieve the `kubernetes-the-hard-way` static IP address:
 
 ```
-KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe kubernetes-the-hard-way \
-  --region $(gcloud config get-value compute/region) \
-  --format 'value(address)')
+ubuntu@vm10-0-10-200:~/ca$ kubectl get node
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+```
+
+```
+ubuntu@vm10-0-10-200:~$ ls
+admin-key.pem      admin.pem      ca.pem
+
 ```
 
 Generate a kubeconfig file suitable for authenticating as the `admin` user:
 
 ```
+KUBERNETES_PUBLIC_ADDRESS=120.131.1.200
 kubectl config set-cluster kubernetes-the-hard-way \
   --certificate-authority=ca.pem \
   --embed-certs=true \
@@ -69,10 +75,11 @@ kubectl get nodes
 > output
 
 ```
-NAME       STATUS    ROLES     AGE       VERSION
-worker-0   Ready     <none>    2m        v1.8.0
-worker-1   Ready     <none>    2m        v1.8.0
-worker-2   Ready     <none>    2m        v1.8.0
+ubuntu@vm10-0-10-200:~$ kubectl get node
+NAME                  STATUS    ROLES     AGE       VERSION
+vm10-0-10-5.ksc.com   Ready     <none>    5m        v1.9.2
+vm10-0-10-6.ksc.com   Ready     <none>    20m       v1.9.2
+vm10-0-10-7.ksc.com   Ready     <none>    13m       v1.9.2
 ```
 
 Next: [Provisioning Pod Network Routes](11-pod-network-routes.md)

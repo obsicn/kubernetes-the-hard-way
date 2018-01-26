@@ -8,6 +8,8 @@ In this section you will provision a Certificate Authority that can be used to g
 
 Create the CA configuration file:
 
+生成证书授权
+
 ```
 cat > ca-config.json <<EOF
 {
@@ -53,6 +55,18 @@ Generate the CA certificate and private key:
 
 ```
 cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+
+ubuntu@k8s-srv01:~/ca$ ls
+ca-config.json  ca-csr.json
+ubuntu@k8s-srv01:~/ca$ cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+2018/01/23 23:39:39 [INFO] generating a new CA key and certificate from CSR
+2018/01/23 23:39:39 [INFO] generate received request
+2018/01/23 23:39:39 [INFO] received CSR
+2018/01/23 23:39:39 [INFO] generating key: rsa-2048
+2018/01/23 23:39:39 [INFO] encoded CSR
+2018/01/23 23:39:39 [INFO] signed certificate with serial number 496407924104800415591993178787089159251548280819
+ubuntu@k8s-srv01:~/ca$ ls
+ca-config.json  ca.csr  ca-csr.json  ca-key.pem  ca.pem
 ```
 
 Results:
@@ -116,7 +130,7 @@ Kubernetes uses a [special-purpose authorization mode](https://kubernetes.io/doc
 Generate a certificate and private key for each Kubernetes worker node:
 
 ```
-for instance in worker-0 worker-1 worker-2; do
+for instance in vm10-0-10-5.ksc.com vm10-0-10-6.ksc.com vm10-0-10-7.ksc.com; do
 cat > ${instance}-csr.json <<EOF
 {
   "CN": "system:node:${instance}",
@@ -136,17 +150,11 @@ cat > ${instance}-csr.json <<EOF
 }
 EOF
 
-EXTERNAL_IP=$(gcloud compute instances describe ${instance} \
-  --format 'value(networkInterfaces[0].accessConfigs[0].natIP)')
-
-INTERNAL_IP=$(gcloud compute instances describe ${instance} \
-  --format 'value(networkInterfaces[0].networkIP)')
-
 cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
-  -hostname=${instance},${EXTERNAL_IP},${INTERNAL_IP} \
+  -hostname=${instance} \
   -profile=kubernetes \
   ${instance}-csr.json | cfssljson -bare ${instance}
 done
@@ -155,12 +163,8 @@ done
 Results:
 
 ```
-worker-0-key.pem
-worker-0.pem
-worker-1-key.pem
-worker-1.pem
-worker-2-key.pem
-worker-2.pem
+ubuntu@vm10-0-10-200:~/ca$ ls 10*
+10.0.10.5-key.pem  10.0.10.5.pem  10.0.10.6-key.pem  10.0.10.6.pem  10.0.10.7-key.pem  10.0.10.7.pem
 ```
 
 ### The kube-proxy Client Certificate
@@ -248,7 +252,7 @@ cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
-  -hostname=10.32.0.1,10.240.0.10,10.240.0.11,10.240.0.12,${KUBERNETES_PUBLIC_ADDRESS},127.0.0.1,kubernetes.default \
+  -hostname=10.0.10.2,10.0.10.3,10.0.10.4,10.240.0.12,120.131.1.200,127.0.0.1,kubernetes.default \
   -profile=kubernetes \
   kubernetes-csr.json | cfssljson -bare kubernetes
 ```
@@ -265,16 +269,16 @@ kubernetes.pem
 Copy the appropriate certificates and private keys to each worker instance:
 
 ```
-for instance in worker-0 worker-1 worker-2; do
-  gcloud compute scp ca.pem ${instance}-key.pem ${instance}.pem ${instance}:~/
+for instance in vm10-0-10-5.ksc.com vm10-0-10-6.ksc.com vm10-0-10-7.ksc.com; do
+  scp ca.pem ${instance}-key.pem ${instance}.pem ubuntu@${instance}:~/
 done
 ```
 
 Copy the appropriate certificates and private keys to each controller instance:
 
 ```
-for instance in controller-0 controller-1 controller-2; do
-  gcloud compute scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem ${instance}:~/
+for instance in 10.0.10.2 10.0.10.3 10.0.10.4; do
+  scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem ubuntu@${instance}:~/
 done
 ```
 
